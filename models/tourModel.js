@@ -50,7 +50,7 @@ const tourSchema = new mongoose.Schema(
       type: Number,
       validate: {
         validator: function (value) {
-          return value < this.priceDiscount;
+          return value < this.price;
         },
         message: 'Discount price ({VALUE}) should be below the regular price',
       },
