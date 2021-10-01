@@ -1,7 +1,10 @@
 exports.getAllUsers = (req, res) => {
-  res.status(500).json({
-    status: 'failed',
-    message: 'This route is not yet implemented.',
+  const tours = await features.query;
+
+  res.status(200).json({
+    status: 'success',
+    results: tours.length,
+    data: { tours },
   });
 };
 exports.getUser = (req, res) => {

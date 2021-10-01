@@ -5,7 +5,9 @@ handleCastErrorDB = (err) => {
   return new AppError(message, 400);
 };
 handleDuplicateFieldsDB = (err) => {
-  const message = `Duplicate Filed Value: ${err.keyValue.name}, Please Use another value`;
+  const message = `Duplicate Filed Value: ${
+    err.keyValue.name || err.message.split('"')[1]
+  }, Please Use another value`;
   return new AppError(message, 400);
 };
 handleValidationErrorDB = (err) => {
@@ -41,10 +43,10 @@ const sendErrorProd = (err, res) => {
 module.exports = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
-  if (process.env.NODE_ENV === 'deveopment') {
+  if (process.env.NODE_ENV === 'develxopment') {
     sendErrorDev(err, res);
   } else {
-    let error = { ...err, name: err.name };
+    let error = { ...err, name: err.name, message: err.message };
     if (error.name === 'CastError') error = handleCastErrorDB(error);
     if (error.code === 11000) error = handleDuplicateFieldsDB(error);
     if (error.name === 'ValidationError')
