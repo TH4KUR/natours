@@ -23,6 +23,11 @@ const sendErrorDev = (err, res) => {
     stack: err.stack,
   });
 };
+const handleJwtError = () =>
+  new AppError('Invalid token. Please login again.', 401);
+
+const handleJwtExpired = () =>
+  new AppError('Your token has expired. Please login again.', 401);
 const sendErrorProd = (err, res) => {
   // Operational, trusted error: send message to client
   if (err.isOperational) {
@@ -48,6 +53,8 @@ module.exports = (err, req, res, next) => {
   } else {
     let error = { ...err, name: err.name, message: err.message };
     if (error.name === 'CastError') error = handleCastErrorDB(error);
+    if (error.name === 'JsonWebTokenError') error = handleJwtError();
+    if (error.name === 'TokenExpiredError') error = handleJwtExpired();
     if (error.code === 11000) error = handleDuplicateFieldsDB(error);
     if (error.name === 'ValidationError')
       error = handleValidationErrorDB(error);
