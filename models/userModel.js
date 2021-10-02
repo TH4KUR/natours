@@ -15,11 +15,11 @@ const userSchema = new mongoose.Schema({
     validate: [validator.isEmail, 'Please provide a valid email'],
   },
   photo: String,
-  //   role: {
-  //     type: String,
-  //     enum: ['user', 'guide', 'lead-guide', 'admin'],
-  //     default: 'user',
-  //   },
+  role: {
+    type: String,
+    enum: ['user', 'guide', 'lead-guide', 'admin'],
+    default: 'user',
+  },
   password: {
     type: String,
     required: [true, 'Please provide a password'],
@@ -52,7 +52,11 @@ userSchema.methods.correctPassword = async function (candidatePass, userPass) {
 };
 userSchema.methods.changedPassAfter = function (JwtTimestamp) {
   if (this.passwordChangedAt) {
-    console.log(this.passwordChangedAt, JwtTimestamp);
+    const changedTimestamp = parseInt(
+      this.passwordChangedAt.getTime() / 1000,
+      10
+    );
+    return JwtTimestamp < changedTimestamp;
   }
   return false;
 };
