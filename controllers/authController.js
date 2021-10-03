@@ -148,4 +148,35 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.updatePassowrd = catchAsync(async (req, res, next) => {});
+exports.updatePassword = catchAsync(async (req, res, next) => {
+  const { password, newPassword } = req.body;
+  // 1) Get user
+  if (!password || !newPassword)
+    return next(
+      new AppError('Please provide your current password and newPassword!')
+    );
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer ')
+  ) {
+    var token = req.headers.authorization.split(' ')[1];
+  }
+  if (!token)
+    return next(
+      new AppError('You are not logged in. Please login to access', 401)
+    );
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  // 2) Check if posted current Pass is correct
+  const user = await User.findById(decoded.id).select('+password');
+  if (!user || !(await user.correctPassword(password, user.password)))
+    return next(
+      new AppError('The user belonging to this token, no longer exists.', 404)
+    );
+  // 3) if so, update password
+  user.password = newPassword;
+  user.passwordConfirm = newPassword;
+  user.save();
+  // 4) Log the user in, send JWT
+  const newToken = signToken(user._id);
+  res.status(200).json({ status: 'success', token: newToken });
+});
