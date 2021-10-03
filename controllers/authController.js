@@ -147,3 +147,5 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     token,
   });
 });
+
+exports.updatePassowrd = catchAsync(async (req, res, next) => {});
